@@ -55,24 +55,36 @@ Then open the notebooks in Colab for interactive learning with GPU acceleration.
    - End-to-end OCR systems
    - Practical applications
 
-## 🤝 Contributing
 
-Feel free to submit issues, fork the repository, and create pull requests for any improvements.
+### Fine-Tuning Neural Network Hyperparameters
 
-## 📝 License
+#### Number of Hidden Layers
+For many problems, you can begin with a single hidden layer and get reasonable results. A NN with just one hidden layer can theoretically model 
+even the most complex functions, provided it has enough neurons. But for complex problem, deep networks have a much higher parameter efficiency
+than shallow ones: thay can model complex functions using exponentially fewer neurons than shallow nets, allowing them to reach much better 
+performance with the same amount of training data.
 
-This project is open source and available under the MIT License.
+#### Number of Neurons per Hidden Layer
+As for the hidden layers, it used to be common to size them to form a pyramid, with fewer and fewer neurons at each layer-the rational being that
+many low-level features can coalesce into far fewer high-level features. However, this practice has been largely abandoned because it seems that using the same number of neurons in all hidden layers performs just as well in most cases, or even better. That said, depending on the dataset, it can sometimes help to make the first hidden layer bigger than others.
+
+One can try increasing the number of neurons gradually until the network starts overfitting. Alternatively, you can try building a model with a bit more layers and neurons than you actually need, then use early stopping and other regularization techniques to prevent it from overfitting.
+
+#### Learning Rate
+The learning rate is the most important hyperparameter. The optimal learning rate is about half of the maximum learning rate (the learning rate above which the training algorithm diverges). One way to find a good learining rate is to train the model for a few hundred iterations, starting with a very low learning rate (e.g., 10^{-5}) and gradually increasing it up to a very large value (e.g., 10). This is done by multiplying the learning rate by a constant factor at each iteration (e.g., by (10 / 10^{-5))^{1/500} to go from 10^{-5} to 10 in 500 iterations).
+Plot the loss as a function of the learning rate (using a log scale for the learning rate), you should see it dropping at first. But after a while, the learning rate will be too large, so the loss will shoot back up: the optimal learning rate will be a bit lower than the point at which the loss starts to climb (typically about 10 times lower than the turning point). 
+
+#### Optimizer
+Choose a better optimizer than Mini-batch Gradient Descent.
+
+#### Batch Size
+One strategy is to try to use a large batch size, using learning rate warmup, and if training is unstable or the final performance is disappointing, then try using a small batch size instead.
+
+#### Activation function
+In general, the ReLU activation function is a good default for all hidden layers. For the output layer, it depends on the task.
 
 ## 🔗 Resources
 
 - [PyTorch Official Documentation](https://pytorch.org/docs/stable/index.html)
 - [PyTorch Tutorials](https://pytorch.org/tutorials/)
 - [Deep Learning with PyTorch](https://pytorch.org/assets/deep-learning/Deep-Learning-with-PyTorch.pdf)
-
-## 📧 Contact
-
-For questions or suggestions, please open an issue in the repository.
-
----
-
-**Happy Learning!** 🚀 Keep refreshing and strengthening your AI knowledge.
