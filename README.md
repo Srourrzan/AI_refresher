@@ -72,7 +72,7 @@ One can try increasing the number of neurons gradually until the network starts 
 
 #### Learning Rate
 The learning rate is the most important hyperparameter. The optimal learning rate is about half of the maximum learning rate (the learning rate above which the training algorithm diverges). One way to find a good learining rate is to train the model for a few hundred iterations, starting with a very low learning rate (e.g., 10^{-5}) and gradually increasing it up to a very large value (e.g., 10). This is done by multiplying the learning rate by a constant factor at each iteration (e.g., by (10 / 10^{-5))^{1/500} to go from 10^{-5} to 10 in 500 iterations).
-Plot the loss as a function of the learning rate (using a log scale for the learning rate), you should see it dropping at first. But after a while, the learning rate will be too large, so the loss will shoot back up: the optimal learning rate will be a bit lower than the point at which the loss starts to climb (typically about 10 times lower than the turning point). 
+Plot the loss as a function of the learning rate (using a log scale for the learning rate), you should see it dropping at first. But after a while, the learning rate will be too large, so the loss will shoot back up: the optimal learning rate will be a bit lower than the point at which the loss starts to climb (typically about 10 times lower than the turning point). (or better use learning rate scheduling)
 
 #### Optimizer
 Choose a better optimizer than Mini-batch Gradient Descent.
@@ -81,7 +81,24 @@ Choose a better optimizer than Mini-batch Gradient Descent.
 One strategy is to try to use a large batch size, using learning rate warmup, and if training is unstable or the final performance is disappointing, then try using a small batch size instead.
 
 #### Activation function
-In general, the ReLU activation function is a good default for all hidden layers. For the output layer, it depends on the task.
+In general, the ReLU (or better, use leaky ReLU) activation function is a good default for all hidden layers. For the output layer, it depends on the task. ELU, GELU, and Swish are better.
+
+
+Glorot and Bengio proposed a good compromise that has proven to work
+very well in practice: the connection weights of each layer must be
+initialized randomly as described in Equation 11-1, where fan = (fan +
+fan )/2. This initialization strategy is called Xavier initialization or Glorot
+initialization, after the paper’s first author.
+
+Normal distribution with mean 0 and variance σ2 = 1
+fanavg
+Or a uniform distribution between − r and + r, with r = √ 3
+fanavg
+Using Glorot initialization can speed up training considerably, and
+it is one of the tricks that led to the success of Deep Learning.
+
+#### Batch Normalization
+This technique consists of adding an operation in the model just before or after the activation function of each hidden layer. This operation simply zero-center and normalizes each point, then scales and shifts the result using two new parameters vectors per layer: one for scaling, the other for shifting (The operation lets the model learn the optimal scale and mean of each of the layer's inputs).
 
 ## 🔗 Resources
 
