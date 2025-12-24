@@ -100,6 +100,15 @@ it is one of the tricks that led to the success of Deep Learning.
 #### Batch Normalization
 This technique consists of adding an operation in the model just before or after the activation function of each hidden layer. This operation simply zero-center and normalizes each point, then scales and shifts the result using two new parameters vectors per layer: one for scaling, the other for shifting (The operation lets the model learn the optimal scale and mean of each of the layer's inputs).
 
+### What is Calibration
+
+**Calibration** makes sure that a model's estimated probabilities match real-world likelihood. For example, if a weather forecasting model predicts a 70% chance of rain on several days, then roughly 70% of those days should actually be rainy for the model to be considered well calibrated. This makes model predictions more reliable and trustworthy.
+
+![f1_reliability_diafram.png](f1_reliability_diafram.png)
+<sub>If the prediction line is under the reliability line then the model is predicting the true probability, and if the prediction line is above the reliability line, then the model is under-predicting the true probability.</sub>
+
+Log-loss (or cross entropy) penalises models that are too overconfident when making wrong predictions or making predictions that differ significantly from their true probabilities.
+
 ## 🔗 Resources
 
 - [PyTorch Official Documentation](https://pytorch.org/docs/stable/index.html)
