@@ -14,6 +14,52 @@ This refresher covers practical implementations and in-depth explanations of:
 
 This repository is designed to be used with **Google Colab** for easy access to GPU/TPU resources without local installation.
 
+## Installing PyTorch in Codespaces
+
+This dev container runs Ubuntu 24.04 and typically has no GPU. Install the CPU build of PyTorch into the workspace virtual environment.
+
+### Quick install
+
+- Ensure the workspace virtualenv is active (VS Code sets it automatically). To install from the terminal:
+
+```bash
+/workspaces/AI_refresher/.venv/bin/python -m pip install -U pip
+/workspaces/AI_refresher/.venv/bin/python -m pip install -r requirements.txt
+```
+
+### Verify the install
+
+```bash
+/workspaces/AI_refresher/.venv/bin/python - <<'PY'
+import torch, torchvision, torchaudio
+print('torch:', torch.__version__)
+print('torchvision:', torchvision.__version__)
+print('torchaudio:', torchaudio.__version__)
+print('CUDA available:', torch.cuda.is_available())
+PY
+```
+
+### Optional: CUDA builds (no GPU in Codespaces)
+
+If you later run on a machine with an NVIDIA GPU and compatible drivers, reinstall with a CUDA-specific index, for example CU128:
+
+```bash
+/workspaces/AI_refresher/.venv/bin/python -m pip install --index-url https://download.pytorch.org/whl/cu128 \
+   torch torchvision torchaudio --upgrade
+```
+
+### Jupyter notebooks
+
+Select the workspace `.venv` kernel in VS Code for the notebooks so imports work:
+
+- Command Palette → "Python: Select Interpreter" → choose `.venv` under `/workspaces/AI_refresher`.
+- If needed, register the kernel:
+
+```bash
+/workspaces/AI_refresher/.venv/bin/python -m pip install ipykernel
+/workspaces/AI_refresher/.venv/bin/python -m ipykernel install --user --name ai_refresher
+```
+
 ## 📖 Usage
 
 Each section contains:
