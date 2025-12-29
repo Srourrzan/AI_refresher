@@ -114,3 +114,5 @@ Log-loss (or cross entropy) penalises models that are too overconfident when mak
 - [PyTorch Official Documentation](https://pytorch.org/docs/stable/index.html)
 - [PyTorch Tutorials](https://pytorch.org/tutorials/)
 - [Deep Learning with PyTorch](https://pytorch.org/assets/deep-learning/Deep-Learning-with-PyTorch.pdf)
+- [understanding-model-calibration-a-gentle-introduction-visual-exploration](https://towardsdatascience.com/understanding-model-calibration-a-gentle-introduction-visual-exploration/)
+- [Understanding Model Calibration](https://arxiv.org/html/2501.19047v1)
