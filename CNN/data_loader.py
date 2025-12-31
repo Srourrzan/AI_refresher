@@ -1,8 +1,8 @@
 #import torch;
 from torchvision import datasets;
 from torchvision import transforms as T;
-from sklearn.model_selection import StratifiedKFold;
 from torch.utils.data import DataLoader, Subset;
+from sklearn.model_selection import StratifiedKFold;
 
 def get_dataset( ):
     transform = T.Compose([T.ToTensor(), T.Normalize((0.5,), (0.5,))]);
@@ -20,8 +20,9 @@ def get_stratified_dataloaders(dataset:datasets, n_splits: int = 5, batch_size: 
         folds.append((train_dl, val_dl));
     return (folds);
 
-if __name__ == "__main__":
-    data = get_dataset();
-    print(f"data type = {type(data)}");
-    folds = get_stratified_dataloaders(data);
-    print(f"folds datatype = {type(folds)}");
+def get_val_dataloader(batch_size: int) -> DataLoader:
+    transform = T.Compose([T.ToTensor(), T.Normalize((0.5,), (0.5,))]);
+    val_dataset = datasets.CIFAR10(root='./data', train=False, download=True, transform=transform);
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False);
+    return (val_loader);
+
