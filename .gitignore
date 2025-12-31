@@ -1,1 +1,8 @@
 .ipynb_checkpoints
+*.*~
+CNN/*.*~
+CNN/data
+CNN/__pychache__/
+__pychache__/
+data
+*/*.pth

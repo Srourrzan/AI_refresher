@@ -5,6 +5,7 @@ import torch.optim as optim;
 from torch.utils.data import DataLoader;
 from data_loader import get_stratified_dataloaders, get_dataset;
 
+from utils import load_device;
 
 def train_one_epoch(model: nn, dataloader: DataLoader, criterion, optimizer, device) -> float:
     running_loss: float = 0.;
@@ -51,11 +52,8 @@ def main():
     dataset = get_dataset();
     folds = get_stratified_dataloaders(dataset);
     save_path = "best_model_state.pth";
-    
-    if (torch.cuda.is_available()):
-        device = torch.device("cuda");
-    else:
-        device = torch.device("cpu");
+
+    device: torch.device = load_device();
     for train_dl, val_dl in folds:
         model = run_training(train_dl, val_dl, device);
     torch.save(model.state_dict(), save_path);

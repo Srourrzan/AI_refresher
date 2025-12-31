@@ -44,7 +44,7 @@ class TemperatureScaler(nn.Module):
         def closure():
             optimizer.zero_grad();
             scaled: float = self.temperature_scale(logits);
-            loss: Tensor = nll_criterion(scaled, labels);
+            loss: Tensor = nll_criterion(scaled, labels); # Negative Log Likelihood (NLL)
             loss.backward();
             return (loss);
         

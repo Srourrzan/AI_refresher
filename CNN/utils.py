@@ -1,6 +1,6 @@
 from model import CNN;
 import torch.nn as nn;
-from torch import load, device, cuda;
+from torch import load, cuda, device;
 
 def load_model(path: str, device: device) -> nn.Module:
     model: nn.Module = CNN().to(device);
@@ -10,7 +10,7 @@ def load_model(path: str, device: device) -> nn.Module:
 
 def load_device() -> device:
     if (cuda.is_available()):
-        device_: device = device("GPU");
+        device_: device = device("cuda");
     else:
         device_: device = device("cpu");
     return (device_);
