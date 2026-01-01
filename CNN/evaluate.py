@@ -10,9 +10,9 @@ from sklearn.calibration import calibration_curve, CalibratedClassifierCV;
 from model import CNN;
 from utils import load_model, load_device;
 from temperature_model import TemperatureScaler;
-from data_loader import get_calibration_dataloader, get_dataset;
+from data_loader import get_test_dataloader, get_dataset, get_stratified_and_calib_dataloaders;
 
-def plot_calibration(frac_of_postv: np.ndarray, mean_pred_val: np.ndarray, bin_counts: np.ndarray=None):
+def plot_calibration(frac_of_postv: np.ndarray, mean_pred_val: np.ndarray, split_name: str, bin_counts: np.ndarray=None):
     plt.figure(figsize=(8, 6));
     plt.plot(mean_pred_val, frac_of_postv, marker='o', label='Calibrated Model');
     plt.plot([0, 1], [0, 1], linestyle='--', color="gray", label="Perfectly calibrated");
@@ -30,7 +30,7 @@ def plot_calibration(frac_of_postv: np.ndarray, mean_pred_val: np.ndarray, bin_c
     plt.xlim(0, 1);
     plt.ylim(0, 1);
     plt.grid(alpha=0.3);
-    plt.savefig("calibration_curve.png", dpi=300);
+    plt.savefig(f"calibration_curve_{split_name}.png", dpi=300);
     return ;
 
 def calculate_ece(task_type: str, probabilities: Tensor, labels: Tensor, num_classes: int, n_bins: int, device_:device) -> Tensor:
@@ -40,7 +40,7 @@ def calculate_ece(task_type: str, probabilities: Tensor, labels: Tensor, num_cla
     ece_value: Tensor = ece(probabilities, labels).item();
     return (ece_value);
     
-def calibration_metrics(model: nn.Module, cal_loader: DataLoader, device_: device) -> (Tensor, float, float):
+def calibration_metrics(scaled_model: nn.Module, cal_loader: DataLoader, device_: device, split_name: str = "calib") -> (Tensor, float, float):
     """
     To make the output of the model represent probabilities, I used Softmax
     to transform the raw scores of the model into a probability distribution
@@ -49,9 +49,6 @@ def calibration_metrics(model: nn.Module, cal_loader: DataLoader, device_: devic
     all_probs: list = [];
     all_labels: list = [];
 
-    scaled_model: TemperatureScaler = TemperatureScaler(model);
-    temperature: float = scaled_model.set_temperature(cal_loader, device_);
-    print(f"Optimal T = {temperature}, type {type(temperature)}");
     scaled_model.eval();
     with no_grad():
         for inputs, labels in cal_loader:
@@ -66,40 +63,33 @@ def calibration_metrics(model: nn.Module, cal_loader: DataLoader, device_: devic
     probs_tensor: Tensor = from_numpy(all_probs).to(device_);
     labels_tensor: Tensor = from_numpy(all_labels).to(device_);
     ece_value: Tensor = calculate_ece("multiclass", probs_tensor, labels_tensor, 10, 15, device_);
-    print(f"ece_value {type(ece_value)} =\n{ece_value}");
-    #calculate nll
     nll: float = nn.functional.cross_entropy(probs_tensor, labels_tensor).item();
-    print(f"nll {type(nll)}=\n{nll}");
-    #calculate accuracy
     predicted_classes: np.ndarray = np.argmax(all_probs, axis=1);
-    print(f"predicted_classes {type(predicted_classes)}=\n{predicted_classes}");
     accuracy: np.float64 = np.mean(predicted_classes == all_labels);
-    print(f"accuracy {type(accuracy)}=\n{accuracy}");
-    # evaluate fop, mpv
     confidence: np.ndarray = np.max(all_probs, axis=1);
-    print(f"confidence {type(confidence)}, =\n{confidence}");
     correct: np.ndarray = (predicted_classes == all_labels).astype(int);
-    print(f"correct {type(correct)}=\n{correct}");
     fop: np.ndarray;
     mpv: np.ndarray;
     fop, mpv = calibration_curve(correct, confidence, n_bins=15, strategy='uniform');
-    print(f"fop {type(fop)}=\n{fop}");
-    print(f"mpv {type(mpv)}=\n{mpv}");
     bin_counts: np.ndarray = np.histogram(confidence, bins=15, range=(0, 1))[0];
-    print(f"bin_counts {type(bin_counts)}=\n{bin_counts}");
-    plot_calibration(fop, mpv, bin_counts);
+    print(f"{split_name.upper()} results:");
+    print(f"ECE: {ece_value:.4f} | NLL: {nll:.4f} | Acc: {accuracy:.4f}");
+    plot_calibration(fop, mpv, split_name, bin_counts);
     return (ece_value, nll, accuracy);
-
-
 
 def main():
     device: torch.device = load_device();
     model: torch.nn.Module = load_model("best_model_state.pth", device);
+    data: datasets = get_dataset();
+    _, calib_loader = get_stratified_and_calib_dataloaders(data);
+    test_loader: DataLoader = get_test_dataloader();
     
     model.eval();
-    train_data: datasets = get_dataset();
-    calibration_loader: DataLoader = get_calibration_dataloader(train_data, 64);
-    ece_value, nll, accuracy  = calibration_metrics(model, calibration_loader, device);
+    scaled_model = TemperatureScaler(model);
+    temperature: float = scaled_model.set_temperature(calib_loader, device);
+    calibration_metrics(scaled_model, calib_loader, device, "calib");
+    calibration_metrics(scaled_model, test_loader, device, "test");
+    return ;
 
 if __name__ == "__main__":
     main();
